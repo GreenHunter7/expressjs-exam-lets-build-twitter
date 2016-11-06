@@ -1,0 +1,22 @@
+<% include ../shared/header.ejs %>
+
+<h1>User Profile</h1>
+<% if (user) { %>
+    <p><i class="fa fa-user-circle-o" aria-hidden="true"></i> <%= user.firstName %> <%= user.lastName %> (<%= user.username %>)</p>
+    <h2>Tweet List</h2>
+    <% if (user.tweets.length) { %>
+        <table class="tabletest2">
+            <% for (var i = 0; i < user.tweets.length; i++) { %>
+                <tr>
+                    <td><p><pre><%= user.tweets[i].message %></pre></p>
+                        <p><i class="fa fa-calendar" aria-hidden="true"></i> <%= moment(user.tweets[i].createdAt).format('MM/DD/YYYY, h:mm:ss a') %></p>
+                    </td>
+                </tr>
+            <% } %>
+        </table>
+    <% } else { %>
+        <p>No tweets found ;-(</p>
+    <% } %>
+<% } %>
+
+<% include ../shared/footer.ejs %>

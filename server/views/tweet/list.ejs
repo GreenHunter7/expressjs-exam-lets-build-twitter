@@ -15,8 +15,16 @@
         <% for (var i = 0; i < rows.length; i++) { %>
         <tr>
             <td><p><pre><%= rows[i].message %></pre></p>
-                <p><i class="fa fa-user-circle-o" aria-hidden="true"></i> <%= rows[i]._author.firstName %> <%= rows[i]._author.lastName %> |
+                <p><% if (typeof currentUser !== 'undefined') { %>
+                        <a href="/profile/<%= rows[i]._author.username %>"><i class="fa fa-user-circle-o" aria-hidden="true"></i> <%= rows[i]._author.firstName %> <%= rows[i]._author.lastName %></a>
+                    <% } else { %>
+                        <i class="fa fa-user-circle-o" aria-hidden="true"></i> <%= rows[i]._author.firstName %> <%= rows[i]._author.lastName %>
+                    <% } %> |
                     <i class="fa fa-calendar" aria-hidden="true"></i> <%= moment(rows[i].createdAt).format('MM/DD/YYYY, h:mm:ss a') %>
+                    <% if (typeof currentUser !== 'undefined' && currentUser.roles.indexOf('Admin') > -1) { %>
+                        | <a href="/edit/<%= rows[i]._id %>">Edit</a>
+                        | <a href="/delete/<%= rows[i]._id %>">Delete</a>
+                    <% } %>
                 </p>
             </td>
         </tr>

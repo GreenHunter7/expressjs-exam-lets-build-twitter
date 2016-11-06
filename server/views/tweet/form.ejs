@@ -1,8 +1,8 @@
 <% include ../shared/header.ejs %>
 
-<h1>Add New Tweet</h1>
+<h1><%= pageTitle %></h1>
 
-<form action="/tweet" method="post">
+<form action="<%= formAction %>" method="post">
     <p><label for="message">Message (maximum 140 symbols):</label><br>
         <textarea id="message" name="message" rows="10"><%= message %></textarea>
     </p>
