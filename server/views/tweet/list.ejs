@@ -1,0 +1,24 @@
+<% include ../shared/header.ejs %>
+
+<h1>Welcome to My Simple Twitter System!</h1>
+<h2>Tweet List</h2>
+<% if (typeof currentUser !== 'undefined') { %>
+    <p><a href="/tweet">Add a New Tweet</a></p>
+<% } %>
+<% if (rows.length) { %>
+    <table class="tabletest2">
+        <% for (var i = 0; i < rows.length; i++) { %>
+        <tr>
+            <td><p><pre><%= rows[i].message %></pre></p>
+                <p><i class="fa fa-user-circle-o" aria-hidden="true"></i> <%= rows[i]._author.firstName %> <%= rows[i]._author.lastName %> |
+                    <i class="fa fa-calendar" aria-hidden="true"></i> <%= moment(rows[i].createdAt).format('MM/DD/YYYY, h:mm:ss a') %>
+                </p>
+            </td>
+        </tr>
+        <% } %>
+    </table>
+<% } else { %>
+    <p>No tweets found ;-(</p>
+<% } %>
+
+<% include ../shared/footer.ejs %>

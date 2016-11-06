@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Express.js Exam – Let's build Twitter</title>
+        <link href="/css/site.css" rel="stylesheet">
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+        <script src="/js/jquery.js"></script>
+    </head>
+    <body>
+    <div class="container">
+        <ul class="menu">
+            <li><a href="/">Home</a></li>
+            <% if (typeof currentUser !== 'undefined') { %>
+                <li><a href="/tweet">Add a Tweet</a></li>
+            <% } %>
+            <li class="delimiter"></li>
+            <% if (typeof currentUser !== 'undefined') { %>
+                <li><%= currentUser.username %></li>
+                <li><form id="logout-form" action="/users/logout" method="post">
+                        <a href="javascript: document.getElementById('logout-form').submit()">Logout</a>
+                    </form>
+                </li>
+            <% } else { %>
+                <li><a href="/users/register">Register</a></li>
+                <li><a href="/users/login">Log In</a></li>
+            <% } %>
+        </ul>
+
+        <% if (typeof globalError !== 'undefined' || typeof globalSuccess !== 'undefined') { %>
+            <% if (typeof globalError !== 'undefined') { %>
+                <h3 style="color: red;"><%= globalError %></h3>
+            <% } else if (typeof globalSuccess !== 'undefined') { %>
+                <h3 style="color: green;"><%= globalSuccess %></h3>
+            <% } %>
+        <% } %>

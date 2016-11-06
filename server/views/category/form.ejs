@@ -1,0 +1,11 @@
+<% include ../shared/header.ejs %>
+
+<h1><%= pageTitle %></h1>
+
+<form action="<%= formAction %>" method="post">
+    <p><input type="text" name="title" value="<%= (typeof title !== 'undefined') ? title : '' %>"></p>
+    <p><input type="submit" value="Save"></p>
+    <p><a href="/category/list">Cancel</a> | <a href="/category/add">New Category</a></p>
+</form>
+
+<% include ../shared/footer.ejs %>

@@ -1,0 +1,25 @@
+<% include ../shared/header.ejs %>
+
+<h1>Category List</h1>
+<p><a href="/category/add">New Category</a></p>
+<% if (rows.length) { %>
+    <ul>
+        <% for (var i = 0; i < rows.length; i++) { %>
+            <li><%= rows[i].title %> (<a href="/category/edit/<%= rows[i]._id %>">Edit</a> | <a href="/category/delete/<%= rows[i]._id %>" class="delete">Delete</a> )</li>
+        <% } %>
+    </ul>
+<% } else { %>
+    <p>No categories found.</p>
+<% } %>
+
+<script>
+    $(function () {
+        $('.delete').bind('click', function (e) {
+            if (!confirm('Are you sure you want to delete this category?')) {
+                e.preventDefault();
+            }
+        })
+    });
+</script>
+
+<% include ../shared/footer.ejs %>

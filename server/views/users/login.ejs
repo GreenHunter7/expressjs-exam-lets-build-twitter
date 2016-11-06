@@ -1,0 +1,12 @@
+<% include ../shared/header.ejs %>
+
+<h1>Log In</h1>
+<form method="post" action="/users/authenticate">
+  <label for="username">Username</label><br/>
+  <input type="text" name="username" id="username" value="<%= (typeof username !== 'undefined') ? username : 'admin' %>"/><br/>
+  <label for="password">Password</label><br/>
+  <input type="password" name="password" id="password" value="password"/><br/>
+  <input type="submit" value="Log In"/>
+</form>
+
+<% include ../shared/footer.ejs %>

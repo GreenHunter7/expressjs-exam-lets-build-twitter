@@ -1,0 +1,6 @@
+<% include ./shared/header.ejs %>
+
+<h1><%= message %> <% if (typeof error.status !== 'undefined' && error.status) { %> (<%= error.status %>)<% } %></h1>
+<pre><%= error.stack %></pre>
+
+<% include ./shared/footer.ejs %>

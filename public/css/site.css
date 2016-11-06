@@ -1,0 +1,47 @@
+.container {
+    padding-left: 25%
+}
+.menu {
+    list-style-type: none;
+    padding-left: 0;
+}
+.menu li {
+    display: inline-block
+}
+.menu li:after {
+    /*content: "\00a0";*/
+}
+.delimiter {
+    margin-right: 25px;
+}
+
+textarea {
+    width: 100%;
+}
+
+.tabletest2 {
+    border-collapse: collapse;
+    font-size: 15px;
+    margin-bottom: 40px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.tabletest2, .tabletest2 th, .tabletest2 td {
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+table.tabletest2 tbody tr.deleted td {
+    text-decoration: line-through;
+    color: #999;
+}
+
+.error {
+    color: red;
+}
+
+textarea {
+    width: 100%;
+}

@@ -1,0 +1,18 @@
+<% include ../shared/header.ejs %>
+
+<h1>Create New User</h1>
+<form method="post" action="/users/create">
+  <label for="username">Username</label><br/>
+  <input type="text" name="username" id="username" value="<%= (typeof username !== 'undefined') ? username : '' %>"/><br/>
+  <label for="password">Password</label><br/>
+  <input type="password" name="password" id="password"/><br/>
+  <label for="confirm-password">Confirm Password</label><br/>
+  <input type="password" name="confirmPassword" id="confirm-password"/><br/>
+  <label for="first-name">First Name</label><br/>
+  <input type="text" name="firstName" id="first-name" value="<%= (typeof firstName !== 'undefined') ? firstName : '' %>"/><br/>
+  <label for="last-name">Last Name</label><br/>
+  <input type="text" name="lastName" id="last-name" value="<%= (typeof lastName !== 'undefined') ? lastName : '' %>"/><br/>
+  <input type="submit" value="Create"/>
+</form>
+
+<% include ../shared/footer.ejs %>
