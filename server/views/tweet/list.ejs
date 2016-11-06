@@ -23,13 +23,24 @@
                     <i class="fa fa-calendar" aria-hidden="true"></i> <%= moment(rows[i].createdAt).format('MM/DD/YYYY, h:mm:ss a') %>
                     <% if (typeof currentUser !== 'undefined' && currentUser.roles.indexOf('Admin') > -1) { %>
                         | <a href="/edit/<%= rows[i]._id %>">Edit</a>
-                        | <a href="/delete/<%= rows[i]._id %>">Delete</a>
+                        | <a href="/delete/<%= rows[i]._id %>" class="delete">Delete</a>
                     <% } %>
                 </p>
             </td>
         </tr>
         <% } %>
     </table>
+
+    <script>
+        $(function () {
+            $('.delete').bind('click', function (e) {
+                if (!confirm('Are you sure you want to delete this tweet?')) {
+                    e.preventDefault();
+                }
+            })
+        });
+    </script>
+
 <% } else { %>
     <p>No tweets found ;-(</p>
 <% } %>

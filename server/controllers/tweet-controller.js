@@ -230,6 +230,40 @@ module.exports = {
                 
             }
         ]
+    },
+
+    delete: (app, config) => {
+        return [
+            (req, res, next) => {
+                let pageTitle = 'Delete Tweet'
+                let _id = req.params.id || 0
+
+                Tweet
+                    .findOne({_id: _id})
+                    .then((tweet) => {
+                        req.tweet = tweet
+                        tweet
+                            .remove()
+                            .then(() => {
+                                console.log('Successfully deleted tweet.')
+                                next()
+                            })
+                            .catch((err) => {
+                                return console.log('Error deleting tweet: ', err)
+                            })
+                    })
+                    .catch((err) => {
+                        return res.render('error', {
+                            pageTitle: pageTitle,
+                            message: 'Error selecting tweet.',
+                            error: err
+                        })
+                    })
+            },
+            (req, res, next) => {
+                res.redirect('/')
+            }
+        ]
     }
 }
 
