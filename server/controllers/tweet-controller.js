@@ -39,12 +39,43 @@ module.exports = {
   },
 
   unlike: (app, config) => {
-    return [
-        (req, res, next) => {
-            let _id = req.params.id || ''
+      return [
+          (req, res, next) => {
+              let _id = req.params.id || ''
 
-        }
-    ]
+              Tweet
+                  .findOne({_id: _id})
+                  .then((tweet) => {
+                      if (tweet) {
+                          let likes = tweet.likes || []
+
+                          if (likes.length) {
+                              let tmp = []
+                              likes.forEach((like) => {
+                                  if (like.toString() !== req.user._id.toString()) {
+                                      tmp.push(like)
+                                  }
+                              })
+
+                              likes = tmp
+                          }
+                          tweet.likes = likes
+                          tweet
+                              .save()
+                              .then(() => {
+                                  console.log('Unliked!')
+                                  res.redirect('/')
+                              })
+                              .catch((err) => {
+                                  console.log('Error processing ullike: ', err)
+                              })
+                      }
+                  })
+                  .catch((err) => {
+                      console.log('Error unlike: ', err)
+                  })
+          }
+      ]
   },
 
   list: (app, config) => {
