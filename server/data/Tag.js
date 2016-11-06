@@ -4,7 +4,7 @@ let Schema = mongoose.Schema
 mongoose.Promise = global.Promise
 
 let tagSchema = mongoose.Schema({
-    tags: [String]
+  tags: [String]
 })
 
 let Tag = mongoose.model('Tag', tagSchema)

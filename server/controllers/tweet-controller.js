@@ -5,518 +5,510 @@ const _ = require('underscore')
 const moment = require('moment')
 
 module.exports = {
-    list: (app, config) => {
-        return [
+  list: (app, config) => {
+    return [
             // get tag list
-            (req, res, next) => {
-                Tag
+      (req, res, next) => {
+        Tag
                     .find({})
                     .then((tags) => {
-                        req.tags = (tags.length > 0) ? tags[0] : []
-                        next()
+                      req.tags = (tags.length > 0) ? tags[0] : []
+                      next()
                     })
                     .catch((err) => {
-                        console.log('Error selecting tags: ', err)
-                        next()
+                      console.log('Error selecting tags: ', err)
+                      next()
                     })
-            },
-            (req, res, next) => {
-                let pageTitle = 'Tweet List'
-                let pageSize = 100
+      },
+      (req, res, next) => {
+        let pageTitle = 'Tweet List'
+        let pageSize = 100
 
-                let query = {}
-                if (req.params.tagName && req.params.tagName !== 'tweet') {
-                    query.tags = new RegExp(req.params.tagName, 'i')
-                }
+        let query = {}
+        if (req.params.tagName && req.params.tagName !== 'tweet') {
+          query.tags = new RegExp(req.params.tagName, 'i')
+        }
 
-                Tweet
+        Tweet
                     .find(query)
                     .populate('_author') // <-- only works if you pushed refs to children
                     .sort('-createdAt')
                     .limit(pageSize)
                     .then((tweets) => {
-                        req.data = {
-                            pageTitle: pageTitle,
-                            rows: tweets,
-                            moment: moment,
-                            tags: req.tags.tags,
-                            tweets: tweets
-                        }
-                        next()
+                      req.data = {
+                        pageTitle: pageTitle,
+                        rows: tweets,
+                        moment: moment,
+                        tags: req.tags.tags,
+                        tweets: tweets
+                      }
+                      next()
                     })
                     .catch((err) => {
-                        return res.render('error', {
-                            pageTitle: pageTitle,
-                            message: 'Error selecting tweets.',
-                            error: err
-                        })
+                      return res.render('error', {
+                        pageTitle: pageTitle,
+                        message: 'Error selecting tweets.',
+                        error: err
+                      })
                     })
-            },
-            (req, res, next) => {
-                let data = req.data
-                let tweets = data.tweets
+      },
+      (req, res, next) => {
+        let data = req.data
+        let tweets = data.tweets
 
                 // increment view counter
-                if (tweets) {
-                    let idx = 0
-                    let incrementViewCounter = () => {
-                        if (typeof tweets[idx] === 'undefined') {
-                            data.tweets = tweets
-                            return next()
-                        }
+        if (tweets) {
+          let idx = 0
+          let incrementViewCounter = () => {
+            if (typeof tweets[idx] === 'undefined') {
+              data.tweets = tweets
+              return next()
+            }
 
-                        tweets[idx].views += 1
-                        tweets[idx]
+            tweets[idx].views += 1
+            tweets[idx]
                             .save()
                             .then((tweet) => {
-                                console.log('View counter for tweet incremented')
-                                idx++
-                                incrementViewCounter()
+                              console.log('View counter for tweet incremented')
+                              idx++
+                              incrementViewCounter()
                             })
                             .catch((err) => {
-                                console.log('Error incrementing view counter: ', err)
-                                idx++
-                                incrementViewCounter()
+                              console.log('Error incrementing view counter: ', err)
+                              idx++
+                              incrementViewCounter()
                             })
-                    }
+          }
 
-                    incrementViewCounter()
-                } else {
-                    next()
-                }
-            },
-            (req, res, next) => {
-                let data = req.data
-                res.render('tweet/list', data)
-            }
-        ]
-    },
-
-    add: (app, config) => {
-        return [
-            (req, res, next) => {
-                let pageTitle = 'New Tweet'
-
-                let data = {
-                    pageTitle: pageTitle,
-                    formAction: '/tweet'
-                }
-                data = _.extend(getPostedData(req), data)
-                res.render('tweet/form', data)
-            }
-        ]
-    },
-
-    create: (app, config) => {
-        let data = {
-            pageTitle: 'New Tweet',
-            formAction: '/tweet'
+          incrementViewCounter()
+        } else {
+          next()
         }
+      },
+      (req, res, next) => {
+        let data = req.data
+        res.render('tweet/list', data)
+      }
+    ]
+  },
 
-        return [
-            parseAndPrepareData(data),
-            getHandleIDs(data),
-            (req, res, next) => {
-                new Tweet(data)
+  add: (app, config) => {
+    return [
+      (req, res, next) => {
+        let pageTitle = 'New Tweet'
+
+        let data = {
+          pageTitle: pageTitle,
+          formAction: '/tweet'
+        }
+        data = _.extend(getPostedData(req), data)
+        res.render('tweet/form', data)
+      }
+    ]
+  },
+
+  create: (app, config) => {
+    let data = {
+      pageTitle: 'New Tweet',
+      formAction: '/tweet'
+    }
+
+    return [
+      parseAndPrepareData(data),
+      getHandleIDs(data),
+      (req, res, next) => {
+        new Tweet(data)
                     .save()
                     .then((tweet) => {
-                        req.tweet = tweet
-                        next()
+                      req.tweet = tweet
+                      next()
                     })
                     .catch((err) => {
-                        data.globalError = 'Error saving new tweet: ' + err.message
-                        return res.render('tweet/form', data)
+                      data.globalError = 'Error saving new tweet: ' + err.message
+                      return res.render('tweet/form', data)
                     })
-            },
-            updateAuthorRef(data),
-            updateHandles(data),
-            updateTags(data),
-            (req, res, next) => {
-                res.redirect('/')
-            }
-        ]
-    },
+      },
+      updateAuthorRef(data),
+      updateHandles(data),
+      updateTags(data),
+      (req, res, next) => {
+        res.redirect('/')
+      }
+    ]
+  },
 
-    edit: (app, config) => {
-        return [
-            (req, res, next) => {
-                let pageTitle = 'Edit Tweet'
-                let _id = req.params.id || null
-                let ref = req.params.ref || ''
-                let data = {
-                    pageTitle: pageTitle,
-                    formAction: '/edit/' + _id + '/' + ref
-                }
-
-                Tweet
-                    .findOne({_id: _id})
-                    .then((tweet) => {
-                        data = _.extend(getPostedData(req), data)
-                        data = _.extend(data, tweet)
-                        if (req.session.globalSuccess) {
-                            data.globalSuccess = req.session.globalSuccess
-                            delete req.session.globalSuccess
-                        }
-                        res.render('tweet/form', data)
-                    })
-                    .catch((err) => {
-                        res.render('error', {
-                            pageTitle: pageTitle,
-                            message: 'Error selecting tweet.',
-                            error: err
-                        })
-                    })
-            }
-        ]
-    },
-
-    save: (app, config) => {
+  edit: (app, config) => {
+    return [
+      (req, res, next) => {
+        let pageTitle = 'Edit Tweet'
+        let _id = req.params.id || null
+        let ref = req.params.ref || ''
         let data = {
-            pageTitle: 'Edit Tweet',
-            formAction: null,
-            _id: null
+          pageTitle: pageTitle,
+          formAction: '/edit/' + _id + '/' + ref
         }
 
-        return [
-            (req, res, next) => {
-                data. _id = req.params.id || 0
-                let ref = req.params.ref || ''
-                data.formAction = '/edit/' + data. _id + '/' + ref
-                next()
-            },
-            parseAndPrepareData(data),
-            getHandleIDs(data),
-            (req, res, next) => {
-                let _id = data._id
-
-                Tweet
+        Tweet
                     .findOne({_id: _id})
                     .then((tweet) => {
-                        tweet.message = data.message
-                        tweet
-                            .save()
-                            .then((tweet) => {
-                                req.tweet = tweet
-                                console.log('Tweet successfully updated')
-                                next()
-                            })
-                            .catch((err) => {
-                                console.log('Error updating tweet: ', err)
-                                next()
-                            })
-
+                      data = _.extend(getPostedData(req), data)
+                      data = _.extend(data, tweet)
+                      if (req.session.globalSuccess) {
+                        data.globalSuccess = req.session.globalSuccess
+                        delete req.session.globalSuccess
+                      }
+                      res.render('tweet/form', data)
                     })
                     .catch((err) => {
-                        data.globalError = 'Error editing tweet: ' + err.message
-                        return res.render('tweet/form', data)
+                      res.render('error', {
+                        pageTitle: pageTitle,
+                        message: 'Error selecting tweet.',
+                        error: err
+                      })
                     })
-            },
-            updateAuthorRef(data),
-            updateHandles(data),
-            updateTags(data),
-            (req, res, next) => {
-                res.redirect('/' + getRefPath(req))
-            }
-        ]
-    },
+      }
+    ]
+  },
 
-    author: (app, config) => {
-        return [
-            (req, res, next) => {
-                let username = req.params.username || ''
-                let pageTitle = 'Tweet List'
-                let pageSize = 100
-                let data = {
-                    pageTitle: pageTitle
-                }
+  save: (app, config) => {
+    let data = {
+      pageTitle: 'Edit Tweet',
+      formAction: null,
+      _id: null
+    }
 
-                if (!username) {
-                    data.globalError = 'Username is missing'
-                    return res.render('tweet/author', data)
-                }
+    return [
+      (req, res, next) => {
+        data._id = req.params.id || 0
+        let ref = req.params.ref || ''
+        data.formAction = '/edit/' + data._id + '/' + ref
+        next()
+      },
+      parseAndPrepareData(data),
+      getHandleIDs(data),
+      (req, res, next) => {
+        let _id = data._id
 
-                let query = {
-                    username: username
-                }
+        Tweet
+                    .findOne({_id: _id})
+                    .then((tweet) => {
+                      tweet.message = data.message
+                      tweet
+                            .save()
+                            .then((tweet) => {
+                              req.tweet = tweet
+                              console.log('Tweet successfully updated')
+                              next()
+                            })
+                            .catch((err) => {
+                              console.log('Error updating tweet: ', err)
+                              next()
+                            })
+                    })
+                    .catch((err) => {
+                      data.globalError = 'Error editing tweet: ' + err.message
+                      return res.render('tweet/form', data)
+                    })
+      },
+      updateAuthorRef(data),
+      updateHandles(data),
+      updateTags(data),
+      (req, res, next) => {
+        res.redirect('/' + getRefPath(req))
+      }
+    ]
+  },
 
-                User
+  author: (app, config) => {
+    return [
+      (req, res, next) => {
+        let username = req.params.username || ''
+        let pageTitle = 'Tweet List'
+        let pageSize = 100
+        let data = {
+          pageTitle: pageTitle
+        }
+
+        if (!username) {
+          data.globalError = 'Username is missing'
+          return res.render('tweet/author', data)
+        }
+
+        let query = {
+          username: username
+        }
+
+        User
                     .findOne(query)
                     .populate('tweets') // <-- only works if you pushed refs to children
                     .sort('-tweets.createdAt')
                     .limit(pageSize)
                     .then((user) => {
-                        if (user && user.tweets) {
+                      if (user && user.tweets) {
                             // sort by by total views
-                            user.tweets.sort(function (a, b) {
-                                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-                            })
-                        }
+                        user.tweets.sort(function (a, b) {
+                          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                        })
+                      }
 
-                        let data = {
-                            pageTitle: pageTitle,
-                            user: user,
-                            moment: moment
-                        }
-                        res.render('tweet/author', data)
+                      let data = {
+                        pageTitle: pageTitle,
+                        user: user,
+                        moment: moment
+                      }
+                      res.render('tweet/author', data)
                     })
                     .catch((err) => {
-                        res.render('error', {
-                            pageTitle: pageTitle,
-                            message: 'Error selecting user data.',
-                            error: err
-                        })
+                      res.render('error', {
+                        pageTitle: pageTitle,
+                        message: 'Error selecting user data.',
+                        error: err
+                      })
                     })
-                
-            }
-        ]
-    },
+      }
+    ]
+  },
 
-    delete: (app, config) => {
-        return [
-            (req, res, next) => {
-                let pageTitle = 'Delete Tweet'
-                let _id = req.params.id || 0
+  delete: (app, config) => {
+    return [
+      (req, res, next) => {
+        let pageTitle = 'Delete Tweet'
+        let _id = req.params.id || 0
 
-                Tweet
+        Tweet
                     .findOne({_id: _id})
                     .then((tweet) => {
-                        req.tweet = tweet
-                        tweet
+                      req.tweet = tweet
+                      tweet
                             .remove()
                             .then(() => {
-                                console.log('Successfully deleted tweet.')
-                                next()
+                              console.log('Successfully deleted tweet.')
+                              next()
                             })
                             .catch((err) => {
-                                return console.log('Error deleting tweet: ', err)
+                              return console.log('Error deleting tweet: ', err)
                             })
                     })
                     .catch((err) => {
-                        return res.render('error', {
-                            pageTitle: pageTitle,
-                            message: 'Error selecting tweet.',
-                            error: err
-                        })
+                      return res.render('error', {
+                        pageTitle: pageTitle,
+                        message: 'Error selecting tweet.',
+                        error: err
+                      })
                     })
-            },
-            (req, res, next) => {
-                res.redirect('/' + getRefPath(req))
-            }
-        ]
-    }
+      },
+      (req, res, next) => {
+        res.redirect('/' + getRefPath(req))
+      }
+    ]
+  }
 }
 
 // utility functions
 function getPostedData (req) {
-    let params = (req && req.body) || null
+  let params = (req && req.body) || null
 
-    return {
-        _author: req.user._id,
-        message: params.message || ''
-    }
+  return {
+    _author: req.user._id,
+    message: params.message || ''
+  }
 }
 
-function parseMessage(message) {
-    let tags = [];
-    let handles = [];
+function parseMessage (message) {
+  let tags = []
+  let handles = []
 
-    if (message) {
-        let words = message.split(/[\s\.,!\?]+/)
-        words.forEach(word => {
-            if (word.indexOf('#') === 0) {
-                let tag = word.substring(1);
-                if (tags.indexOf(tag) === -1) {
-                    tags.push(tag)
-                }
-            }
-            if (word.indexOf('@') === 0) {
-                let handle = word.substring(1);
-                if (handles.indexOf(handle) === -1) {
-                    handles.push(handle)
-                }
-            }
-        });
-    }
+  if (message) {
+    let words = message.split(/[\s\.,!\?]+/)
+    words.forEach(word => {
+      if (word.indexOf('#') === 0) {
+        let tag = word.substring(1)
+        if (tags.indexOf(tag) === -1) {
+          tags.push(tag)
+        }
+      }
+      if (word.indexOf('@') === 0) {
+        let handle = word.substring(1)
+        if (handles.indexOf(handle) === -1) {
+          handles.push(handle)
+        }
+      }
+    })
+  }
 
-    return {
-        tags: tags.sort(),
-        handles: handles.sort()
-    }
+  return {
+    tags: tags.sort(),
+    handles: handles.sort()
+  }
 }
 
 // Parse and prepare data
-function parseAndPrepareData(data) {
-    return (req, res, next) => {
-        data = _.extend(data, getPostedData(req))
+function parseAndPrepareData (data) {
+  return (req, res, next) => {
+    data = _.extend(data, getPostedData(req))
 
-        console.log('Inside parseAndPrepareData...')
+    console.log('Inside parseAndPrepareData...')
 
         // form validation
-        if (!data.message) {
-            data.globalError = 'Message is required'
-            return res.render('tweet/form', data)
-        }
-        if (data.message.length > 140) {
-            data.globalError = 'Your message cannot contain more than 140 symbols'
-            return res.render('tweet/form', data)
-        }
-
-        let parsed = parseMessage(data.message);
-        data.tags = parsed.tags
-        data.handles = parsed.handles
-        next()
+    if (!data.message) {
+      data.globalError = 'Message is required'
+      return res.render('tweet/form', data)
     }
+    if (data.message.length > 140) {
+      data.globalError = 'Your message cannot contain more than 140 symbols'
+      return res.render('tweet/form', data)
+    }
+
+    let parsed = parseMessage(data.message)
+    data.tags = parsed.tags
+    data.handles = parsed.handles
+    next()
+  }
 }
 
 // Get handle IDs
-function getHandleIDs(data) {
-    return (req, res, next) => {
-        if (!data.handles || !data.handles.length) {
-            return next()
-        }
+function getHandleIDs (data) {
+  return (req, res, next) => {
+    if (!data.handles || !data.handles.length) {
+      return next()
+    }
 
-        let handleIds = []
-        let handles = []
-        let query = { username: { $in: data.handles }}
+    let handleIds = []
+    let handles = []
+    let query = {username: {$in: data.handles}}
 
-        User
+    User
             .find(query)
             .then((users) => {
-                if (!users) {
-                    console.log('pass #2');
-                    return next()
-                }
-                users.forEach((user) => {
-                    handleIds.push(user._id)
-                    handles.push(user)
-                })
-                data.handles = handleIds
-                req.handles = handles
-                next()
+              if (!users) {
+                console.log('pass #2')
+                return next()
+              }
+              users.forEach((user) => {
+                handleIds.push(user._id)
+                handles.push(user)
+              })
+              data.handles = handleIds
+              req.handles = handles
+              next()
             })
             .catch((err) => {
-                data.globalError = 'Error selecting handles: ' + err.message
-                return res.render('tweet/form', data)
+              data.globalError = 'Error selecting handles: ' + err.message
+              return res.render('tweet/form', data)
             })
-
-    }
+  }
 }
 
 // update author ref.
-function updateAuthorRef(data) {
-    return (req, res, next) => {
+function updateAuthorRef (data) {
+  return (req, res, next) => {
+    console.log('Inside updateAuthorRef...')
 
-        console.log('Inside updateAuthorRef...')
-
-        req.user.tweets.push(req.tweet._id)
-        req.user
+    req.user.tweets.push(req.tweet._id)
+    req.user
             .save()
             .then((usr) => {
-                console.log('Successfully adding tweet ref. to author')
-                next()
+              console.log('Successfully adding tweet ref. to author')
+              next()
             })
             .catch((err) => {
-                console.log('Error adding tweet ref. to author: ', err)
-                next()
+              console.log('Error adding tweet ref. to author: ', err)
+              next()
             })
-
-    }
+  }
 }
 
 // update handles
-function updateHandles(data) {
-    return (req, res, next) => {
-        if (!req.handles || !req.handles.length) {
-            return next()
-        }
+function updateHandles (data) {
+  return (req, res, next) => {
+    if (!req.handles || !req.handles.length) {
+      return next()
+    }
 
-        let idx = 0
-        let addMessageToHandle = () => {
-            if (typeof req.handles[idx] === 'undefined') {
-                return next()
-            }
+    let idx = 0
+    let addMessageToHandle = () => {
+      if (typeof req.handles[idx] === 'undefined') {
+        return next()
+      }
 
-            let user = req.handles[idx]
-            idx++
-            user.tweets.push(req.tweet._id)
+      let user = req.handles[idx]
+      idx++
+      user.tweets.push(req.tweet._id)
 
-            user
+      user
                 .save()
                 .then((usr) => {
-                    addMessageToHandle()
+                  addMessageToHandle()
                 })
                 .catch((err) => {
-                    console.log('Error pushing tweet to handle: ', err)
-                    addMessageToHandle()
+                  console.log('Error pushing tweet to handle: ', err)
+                  addMessageToHandle()
                 })
-        }
-
-        addMessageToHandle()
     }
+
+    addMessageToHandle()
+  }
 }
 
 // update tags
-function updateTags(data) {
-    return (req, res, next) => {
-        if (!data.tags || !data.tags.length) {
-            return next()
-        }
+function updateTags (data) {
+  return (req, res, next) => {
+    if (!data.tags || !data.tags.length) {
+      return next()
+    }
 
-        Tag
+    Tag
             .find({})
             .then((tags) => {
-                if (tags.length === 0) {
-                    new Tag({tags: data.tags})
+              if (tags.length === 0) {
+                new Tag({tags: data.tags})
                         .save()
                         .then((tag) => {
-                            console.log('New tags successfully added to tag model')
-                            next()
+                          console.log('New tags successfully added to tag model')
+                          next()
                         })
                         .catch((err) => {
-                            console.log('Error adding new tags: ', err)
-                            next()
+                          console.log('Error adding new tags: ', err)
+                          next()
                         })
+              } else {
+                let allTags = tags[0].tags
+                data.tags.forEach((tag) => {
+                  allTags.push(tag)
+                })
+                allTags = _.uniq(allTags, (name) => {
+                  return name.toString()
+                })
 
-                } else {
-                    let allTags = tags[0].tags
-                    data.tags.forEach((tag) => {
-                        allTags.push(tag)
-                    })
-                    allTags = _.uniq(allTags, (name) => {
-                        return name.toString()
-                    })
+                tags[0].tags = allTags.sort()
 
-                    tags[0].tags = allTags.sort()
-
-                    tags[0]
+                tags[0]
                         .save()
                         .then((t) => {
-                            console.log('Successfully updated tag array')
-                            next()
+                          console.log('Successfully updated tag array')
+                          next()
                         })
                         .catch((err) => {
-                            console.log('Error adding new tags: ', err)
-                            next()
+                          console.log('Error adding new tags: ', err)
+                          next()
                         })
-                }
+              }
             })
             .catch((err) => {
-                console.log('Error selecting tags: ', err)
-                next()
+              console.log('Error selecting tags: ', err)
+              next()
             })
-
-    }
+  }
 }
 
 function getRefPath (req) {
-    let ref = req.params.ref || ''
-    if (ref.indexOf('profile') > -1) {
-        ref = 'profile/' + ref.split('-')[1]
-    } else {
-        ref = ''
-    }
+  let ref = req.params.ref || ''
+  if (ref.indexOf('profile') > -1) {
+    ref = 'profile/' + ref.split('-')[1]
+  } else {
+    ref = ''
+  }
 
-    return ref
+  return ref
 }
-
 

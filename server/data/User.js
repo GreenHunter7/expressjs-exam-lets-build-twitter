@@ -18,19 +18,19 @@ let userSchema = mongoose.Schema({
 })
 
 userSchema.pre('save', function (next) {
-    if (this.isNew) {
-        this.createdAt = new Date()
-    }
-    console.log('Saving user')
-    next()
+  if (this.isNew) {
+    this.createdAt = new Date()
+  }
+  console.log('Saving user')
+  next()
 })
 
 userSchema.post('save', function (error, doc, next) {
-    if (error.name === 'MongoError' && error.code === 11000) {
-        next(new Error('Username is already in use'))
-    } else {
-        next(error)
-    }
+  if (error.name === 'MongoError' && error.code === 11000) {
+    next(new Error('Username is already in use'))
+  } else {
+    next(error)
+  }
 })
 
 userSchema.method({
