@@ -67,7 +67,7 @@ module.exports = {
                                   res.redirect('/')
                               })
                               .catch((err) => {
-                                  console.log('Error processing ullike: ', err)
+                                  console.log('Error processing unlike: ', err)
                               })
                       }
                   })
