@@ -13,6 +13,9 @@
             <% if (typeof currentUser !== 'undefined') { %>
                 <li><a href="/tweet">Add a Tweet</a></li>
                 <li><a href="/profile/<%= currentUser.username %>">My Profile</a></li>
+                <% if (currentUser.roles.indexOf('Admin') > -1) { %>
+                    <li><a href="/admins/all">Admin List</a></li>
+                <% } %>
             <% } %>
             <li class="delimiter"></li>
             <% if (typeof currentUser !== 'undefined') { %>

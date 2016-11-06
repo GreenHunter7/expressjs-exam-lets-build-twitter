@@ -12,6 +12,9 @@ module.exports = (app, config) => {
   app.get('/edit/:id/:ref', [].concat(auth.isInRole('Admin'), controllers.tweet.edit(app, config)))
   app.post('/edit/:id/:ref', [].concat(auth.isInRole('Admin'), controllers.tweet.save(app, config)))
   app.get('/delete/:id/:ref', [].concat(auth.isInRole('Admin'), controllers.tweet.delete(app, config)))
+  app.get('/admins/all', [].concat(auth.isInRole('Admin'), controllers.admin.list(app, config)))
+  app.get('/admins/add', [].concat(auth.isInRole('Admin'), controllers.admin.add(app, config)))
+  app.post('/admins/add', [].concat(auth.isInRole('Admin'), controllers.admin.create(app, config)))
 
   app.get('/users/register', controllers.users.register)
   app.post('/users/create', controllers.users.create)

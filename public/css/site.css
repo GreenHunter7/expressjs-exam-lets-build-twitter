@@ -45,3 +45,7 @@ table.tabletest2 tbody tr.deleted td {
 textarea {
     width: 100%;
 }
+
+.menu li {
+    padding: 10px;
+}

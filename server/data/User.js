@@ -25,6 +25,14 @@ userSchema.pre('save', function (next) {
     next()
 })
 
+userSchema.post('save', function (error, doc, next) {
+    if (error.name === 'MongoError' && error.code === 11000) {
+        next(new Error('Username is already in use'))
+    } else {
+        next(error)
+    }
+})
+
 userSchema.method({
   authenticate: function (password) {
     if (encryption.generateHashedPassword(this.salt, password) === this.hashedPass) {
