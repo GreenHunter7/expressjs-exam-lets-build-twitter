@@ -5,6 +5,48 @@ const _ = require('underscore')
 const moment = require('moment')
 
 module.exports = {
+  like: (app, config) => {
+    return [
+        (req, res, next) => {
+            let _id = req.params.id || ''
+
+            Tweet
+                .findOne({_id: _id})
+                .then((tweet) => {
+                    if (tweet) {
+                        let likes = tweet.likes || []
+                        likes.push(req.user._id)
+                        likes = _.uniq(likes, (id) => {
+                            return id.toString()
+                        })
+                        tweet.likes = likes
+                        tweet
+                            .save()
+                            .then(() => {
+                                console.log('Liked!')
+                                res.redirect('/')
+                            })
+                            .catch((err) => {
+                                console.log('Error processing like: ', err)
+                            })
+                    }
+                })
+                .catch((err) => {
+                    console.log('Error like: ', err)
+                })
+        }
+    ]
+  },
+
+  unlike: (app, config) => {
+    return [
+        (req, res, next) => {
+            let _id = req.params.id || ''
+
+        }
+    ]
+  },
+
   list: (app, config) => {
     return [
             // get tag list

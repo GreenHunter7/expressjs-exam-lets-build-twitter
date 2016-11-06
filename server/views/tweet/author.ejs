@@ -10,6 +10,8 @@
                 <tr>
                     <td><p><pre><%= user.tweets[i].message %></pre></p>
                         <p><i class="fa fa-calendar" aria-hidden="true"></i> <%= moment(user.tweets[i].createdAt).format('MM/DD/YYYY, h:mm:ss a') %>
+                            | <i class="fa fa-eye" aria-hidden="true"></i> <%= user.tweets[i].views %>
+                            | <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> <%= rows[i].likes.length %>
                             <% if (typeof currentUser !== 'undefined' && currentUser.roles.indexOf('Admin') > -1) { %>
                             | <a href="/edit/<%= user.tweets[i]._id %>/profile-<%= user.username %>">Edit</a>
                             | <a href="/delete/<%= user.tweets[i]._id %>/profile-<%= user.username %>" class="delete">Delete</a>

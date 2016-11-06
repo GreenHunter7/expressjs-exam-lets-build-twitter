@@ -8,6 +8,9 @@ module.exports = (app, config) => {
   app.get('/tag/:tagName', controllers.tweet.list(app, config))
   app.get('/profile/:username', [].concat(auth.isAuthenticated, controllers.tweet.author(app, config)))
 
+  app.get('/tweet/like/:id', [].concat(auth.isAuthenticated, controllers.tweet.like(app, config)))
+  app.get('/tweet/unlike/:id', [].concat(auth.isAuthenticated, controllers.tweet.unlike(app, config)))
+
   // admin functionality
   app.get('/edit/:id/:ref', [].concat(auth.isInRole('Admin'), controllers.tweet.edit(app, config)))
   app.post('/edit/:id/:ref', [].concat(auth.isInRole('Admin'), controllers.tweet.save(app, config)))

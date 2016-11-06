@@ -21,7 +21,12 @@
                         <i class="fa fa-user-circle-o" aria-hidden="true"></i> <%= rows[i]._author.firstName %> <%= rows[i]._author.lastName %>
                     <% } %> |
                     <i class="fa fa-calendar" aria-hidden="true"></i> <%= moment(rows[i].createdAt).format('MM/DD/YYYY, h:mm:ss a') %> |
-                    <i class="fa fa-eye" aria-hidden="true"></i> <%= rows[i].views %>
+                    <i class="fa fa-eye" aria-hidden="true"></i> <%= rows[i].views %> |
+                    <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> <%= rows[i].likes.length %>
+                    <% if (typeof currentUser !== 'undefined') { %>
+                        | <a href="/tweet/like/<%= rows[i]._id %>">Like</a>
+                        | <a href="/tweet/unlike/<%= rows[i]._id %>">Unlike</a>
+                    <% } %>
 
                     <% if (typeof currentUser !== 'undefined' && currentUser.roles.indexOf('Admin') > -1) { %>
                         | <a href="/edit/<%= rows[i]._id %>/home">Edit</a>
