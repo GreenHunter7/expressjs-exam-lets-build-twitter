@@ -35,21 +35,59 @@ module.exports = {
                     .sort('-createdAt')
                     .limit(pageSize)
                     .then((tweets) => {
-                        let data = {
+                        req.data = {
                             pageTitle: pageTitle,
                             rows: tweets,
                             moment: moment,
-                            tags: req.tags.tags
+                            tags: req.tags.tags,
+                            tweets: tweets
                         }
-                        res.render('tweet/list', data)
+                        next()
                     })
                     .catch((err) => {
-                        res.render('error', {
+                        return res.render('error', {
                             pageTitle: pageTitle,
                             message: 'Error selecting tweets.',
                             error: err
                         })
                     })
+            },
+            (req, res, next) => {
+                let data = req.data
+                let tweets = data.tweets
+
+                // increment view counter
+                if (tweets) {
+                    let idx = 0
+                    let incrementViewCounter = () => {
+                        if (typeof tweets[idx] === 'undefined') {
+                            data.tweets = tweets
+                            return next()
+                        }
+
+                        tweets[idx].views += 1
+                        tweets[idx]
+                            .save()
+                            .then((tweet) => {
+                                console.log('View counter for tweet incremented')
+                                idx++
+                                incrementViewCounter()
+                            })
+                            .catch((err) => {
+                                console.log('Error incrementing view counter: ', err)
+                                idx++
+                                incrementViewCounter()
+                            })
+                    }
+
+                    incrementViewCounter()
+                } else {
+                    next()
+                }
+            },
+            (req, res, next) => {
+                let data = req.data
+                res.render('tweet/list', data)
             }
         ]
     },
