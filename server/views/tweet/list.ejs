@@ -22,8 +22,8 @@
                     <% } %> |
                     <i class="fa fa-calendar" aria-hidden="true"></i> <%= moment(rows[i].createdAt).format('MM/DD/YYYY, h:mm:ss a') %>
                     <% if (typeof currentUser !== 'undefined' && currentUser.roles.indexOf('Admin') > -1) { %>
-                        | <a href="/edit/<%= rows[i]._id %>">Edit</a>
-                        | <a href="/delete/<%= rows[i]._id %>" class="delete">Delete</a>
+                        | <a href="/edit/<%= rows[i]._id %>/home">Edit</a>
+                        | <a href="/delete/<%= rows[i]._id %>/home" class="delete">Delete</a>
                     <% } %>
                 </p>
             </td>

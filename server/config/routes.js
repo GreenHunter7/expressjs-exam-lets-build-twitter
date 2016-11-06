@@ -9,9 +9,9 @@ module.exports = (app, config) => {
   app.get('/profile/:username', [].concat(auth.isAuthenticated, controllers.tweet.author(app, config)))
 
   // admin functionality
-  app.get('/edit/:id', [].concat(auth.isInRole('Admin'), controllers.tweet.edit(app, config)))
-  app.post('/edit/:id', [].concat(auth.isInRole('Admin'), controllers.tweet.save(app, config)))
-  app.get('/delete/:id', [].concat(auth.isInRole('Admin'), controllers.tweet.delete(app, config)))
+  app.get('/edit/:id/:ref', [].concat(auth.isInRole('Admin'), controllers.tweet.edit(app, config)))
+  app.post('/edit/:id/:ref', [].concat(auth.isInRole('Admin'), controllers.tweet.save(app, config)))
+  app.get('/delete/:id/:ref', [].concat(auth.isInRole('Admin'), controllers.tweet.delete(app, config)))
 
   app.get('/users/register', controllers.users.register)
   app.post('/users/create', controllers.users.create)

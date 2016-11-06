@@ -9,11 +9,27 @@
             <% for (var i = 0; i < user.tweets.length; i++) { %>
                 <tr>
                     <td><p><pre><%= user.tweets[i].message %></pre></p>
-                        <p><i class="fa fa-calendar" aria-hidden="true"></i> <%= moment(user.tweets[i].createdAt).format('MM/DD/YYYY, h:mm:ss a') %></p>
+                        <p><i class="fa fa-calendar" aria-hidden="true"></i> <%= moment(user.tweets[i].createdAt).format('MM/DD/YYYY, h:mm:ss a') %>
+                            <% if (typeof currentUser !== 'undefined' && currentUser.roles.indexOf('Admin') > -1) { %>
+                            | <a href="/edit/<%= user.tweets[i]._id %>/profile-<%= user.username %>">Edit</a>
+                            | <a href="/delete/<%= user.tweets[i]._id %>/profile-<%= user.username %>" class="delete">Delete</a>
+                            <% } %>
+                        </p>
                     </td>
                 </tr>
             <% } %>
         </table>
+
+<script>
+    $(function () {
+        $('.delete').bind('click', function (e) {
+            if (!confirm('Are you sure you want to delete this tweet?')) {
+                e.preventDefault();
+            }
+        })
+    });
+</script>
+
     <% } else { %>
         <p>No tweets found ;-(</p>
     <% } %>

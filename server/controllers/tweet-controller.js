@@ -104,9 +104,10 @@ module.exports = {
             (req, res, next) => {
                 let pageTitle = 'Edit Tweet'
                 let _id = req.params.id || null
+                let ref = req.params.ref || ''
                 let data = {
                     pageTitle: pageTitle,
-                    formAction: '/edit/' + _id
+                    formAction: '/edit/' + _id + '/' + ref
                 }
 
                 Tweet
@@ -141,10 +142,8 @@ module.exports = {
         return [
             (req, res, next) => {
                 data. _id = req.params.id || 0
-                data.formAction = '/edit/' + data. _id
-
-                console.log('-----')
-
+                let ref = req.params.ref || ''
+                data.formAction = '/edit/' + data. _id + '/' + ref
                 next()
             },
             parseAndPrepareData(data),
@@ -178,7 +177,7 @@ module.exports = {
             updateHandles(data),
             updateTags(data),
             (req, res, next) => {
-                res.redirect('/')
+                res.redirect('/' + getRefPath(req))
             }
         ]
     },
@@ -208,10 +207,12 @@ module.exports = {
                     .sort('-tweets.createdAt')
                     .limit(pageSize)
                     .then((user) => {
-                        // sort by by total views
-                        user.tweets.sort(function (a, b) {
-                            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-                        })
+                        if (user && user.tweets) {
+                            // sort by by total views
+                            user.tweets.sort(function (a, b) {
+                                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+                            })
+                        }
 
                         let data = {
                             pageTitle: pageTitle,
@@ -261,7 +262,7 @@ module.exports = {
                     })
             },
             (req, res, next) => {
-                res.redirect('/')
+                res.redirect('/' + getRefPath(req))
             }
         ]
     }
@@ -468,3 +469,16 @@ function updateTags(data) {
 
     }
 }
+
+function getRefPath (req) {
+    let ref = req.params.ref || ''
+    if (ref.indexOf('profile') > -1) {
+        ref = 'profile/' + ref.split('-')[1]
+    } else {
+        ref = ''
+    }
+
+    return ref
+}
+
+
