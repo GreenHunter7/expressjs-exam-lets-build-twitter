@@ -10,7 +10,7 @@ module.exports = (app, config) => {
 
   // admin functionality
   app.get('/edit/:id', [].concat(auth.isInRole('Admin'), controllers.tweet.edit(app, config)))
-  // app.post('/edit/:id', [].concat(auth.isInRole('Admin'), controllers.tweet.save(app, config)))
+  app.post('/edit/:id', [].concat(auth.isInRole('Admin'), controllers.tweet.save(app, config)))
   // app.get('/delete/:id', [].concat(auth.isInRole('Admin'), controllers.tweet.delete(app, config)))
 
   app.get('/users/register', controllers.users.register)

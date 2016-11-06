@@ -131,6 +131,58 @@ module.exports = {
         ]
     },
 
+    save: (app, config) => {
+        let data = {
+            pageTitle: 'Edit Tweet',
+            formAction: null,
+            _id: null
+        }
+
+        return [
+            (req, res, next) => {
+                data. _id = req.params.id || 0
+                data.formAction = '/edit/' + data. _id
+
+                console.log('-----')
+
+                next()
+            },
+            parseAndPrepareData(data),
+            getHandleIDs(data),
+            (req, res, next) => {
+                let _id = data._id
+
+                Tweet
+                    .findOne({_id: _id})
+                    .then((tweet) => {
+                        tweet.message = data.message
+                        tweet
+                            .save()
+                            .then((tweet) => {
+                                req.tweet = tweet
+                                console.log('Tweet successfully updated')
+                                next()
+                            })
+                            .catch((err) => {
+                                console.log('Error updating tweet: ', err)
+                                next()
+                            })
+
+                    })
+                    .catch((err) => {
+                        data.globalError = 'Error editing tweet: ' + err.message
+                        return res.render('tweet/form', data)
+                    })
+            },
+            updateAuthorRef(data),
+            updateHandles(data),
+            updateTags(data),
+            (req, res, next) => {
+                res.redirect('/')
+            }
+        ]
+    },
+
     author: (app, config) => {
         return [
             (req, res, next) => {
@@ -224,7 +276,7 @@ function parseAndPrepareData(data) {
     return (req, res, next) => {
         data = _.extend(data, getPostedData(req))
 
-        console.log('data: ', data)
+        console.log('Inside parseAndPrepareData...')
 
         // form validation
         if (!data.message) {
@@ -280,6 +332,9 @@ function getHandleIDs(data) {
 // update author ref.
 function updateAuthorRef(data) {
     return (req, res, next) => {
+
+        console.log('Inside updateAuthorRef...')
+
         req.user.tweets.push(req.tweet._id)
         req.user
             .save()
