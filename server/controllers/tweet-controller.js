@@ -1,5 +1,6 @@
 const User = require('mongoose').model('User')
 const Tweet = require('../data/Tweet')
+const Tag = require('../data/Tag')
 const _ = require('underscore')
 const moment = require('moment')
 
@@ -10,8 +11,13 @@ module.exports = {
                 let pageTitle = 'Tweet List'
                 let pageSize = 100
 
+                let query = {}
+                if (req.params.tagName) {
+                    query.tags = new RegExp(req.params.tagName, 'i')
+                }
+
                 Tweet
-                    .find({})
+                    .find(query)
                     .populate('_author') // <-- only works if you pushed refs to children
                     .sort('-createdAt')
                     .limit(pageSize)
@@ -114,9 +120,6 @@ module.exports = {
                     .save()
                     .then((tweet) => {
                         req.tweet = tweet
-
-                        console.log('nexxxxxx: ')
-
                         next()
                     })
                     .catch((err) => {
@@ -155,43 +158,57 @@ module.exports = {
             },
             // update tags
             (req, res, next) => {
-                /*if (!data.tags || !data.tags.length) {
+                if (!data.tags || !data.tags.length) {
                     return next()
                 }
 
                 Tag
-                    .findOne({})
-                    .then((tag) => {
-                        let allTags = []
-                        tags.forEach((tag) => {
-                            allTags.push(tag.name)
-                        })
+                    .find({})
+                    .then((tags) => {
+                        if (tags.length === 0) {
+                            new Tag({tags: data.tags})
+                                .save()
+                                .then((tag) => {
+                                    console.log('New tags successfully added to tag model')
+                                    next()
+                                })
+                                .catch((err) => {
+                                    console.log('Error adding new tags: ', err)
+                                    next()
+                                })
 
-                        data.tags.forEach(tag => {
-                            ta.push(tag)
-                        })
+                        } else {
+                            let allTags = tags[0].tags
+                            data.tags.forEach((tag) => {
+                                allTags.push(tag)
+                            })
+                            allTags = _.uniq(allTags, (name) => {
+                                return name.toString()
+                            })
 
+                            tags[0].tags = allTags
 
-
-                        allTags = _.uniq(allTags, (name) => {
-                            return name.toString()
-                        })
-
-                        data.handles = allTags
-                        req.handles = handles
-                        next()
+                            tags[0]
+                                .save()
+                                .then((t) => {
+                                    console.log('Successfully updated tag array')
+                                    next()
+                                })
+                                .catch((err) => {
+                                    console.log('Error adding new tags: ', err)
+                                    next()
+                                })
+                        }
                     })
                     .catch((err) => {
-                        console.log('Error selecting tags: ' + err.message)
+                        console.log('Error selecting tags: ', err)
                         next()
-                    })*/
+                    })
 
-                next()
             },
             (req, res, next) => {
                 res.redirect('/')
             }
-
         ]
     }
 }

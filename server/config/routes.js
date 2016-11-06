@@ -3,6 +3,7 @@ const auth = require('../config/auth')
 
 module.exports = (app, config) => {
   app.get('/', controllers.tweet.list(app, config))
+  app.get('/:tagName', controllers.tweet.list(app, config))
   app.get('/users/register', controllers.users.register)
   app.post('/users/create', controllers.users.create)
   app.get('/users/login', controllers.users.login)
