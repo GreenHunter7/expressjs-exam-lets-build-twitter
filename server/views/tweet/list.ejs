@@ -6,6 +6,11 @@
     <p><a href="/tweet">Add a New Tweet</a></p>
 <% } %>
 <% if (rows.length) { %>
+    <% if (tags && tags.length) { %>
+        <p><% for (var i = 0; i < tags.length; i++) { %>
+            <a href="/tag/<%= tags[i] %>">#<%= tags[i] %></a></a>
+        <% } %></p>
+    <% } %>
     <table class="tabletest2">
         <% for (var i = 0; i < rows.length; i++) { %>
         <tr>

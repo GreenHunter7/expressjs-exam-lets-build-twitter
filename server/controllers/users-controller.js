@@ -17,7 +17,7 @@ module.exports = {
     } else {
       user.salt = encryption.generateSalt()
       user.hashedPass = encryption.generateHashedPassword(user.salt, user.password)
-      user.roles = ['Owner']
+      user.roles = ['User']
 
       User
           .create(user)

@@ -7,12 +7,25 @@ const moment = require('moment')
 module.exports = {
     list: (app, config) => {
         return [
+            // get tag list
+            (req, res, next) => {
+                Tag
+                    .find({})
+                    .then((tags) => {
+                        req.tags = (tags.length > 0) ? tags[0] : []
+                        next()
+                    })
+                    .catch((err) => {
+                        console.log('Error selecting tags: ', err)
+                        next()
+                    })
+            },
             (req, res, next) => {
                 let pageTitle = 'Tweet List'
                 let pageSize = 100
 
                 let query = {}
-                if (req.params.tagName) {
+                if (req.params.tagName && req.params.tagName !== 'tweet') {
                     query.tags = new RegExp(req.params.tagName, 'i')
                 }
 
@@ -25,7 +38,8 @@ module.exports = {
                         let data = {
                             pageTitle: pageTitle,
                             rows: tweets,
-                            moment: moment
+                            moment: moment,
+                            tags: req.tags.tags
                         }
                         res.render('tweet/list', data)
                     })
@@ -186,7 +200,7 @@ module.exports = {
                                 return name.toString()
                             })
 
-                            tags[0].tags = allTags
+                            tags[0].tags = allTags.sort()
 
                             tags[0]
                                 .save()
