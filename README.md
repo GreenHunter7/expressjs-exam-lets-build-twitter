@@ -11,7 +11,7 @@
 
 ### Problem 1. Route / (10 Points)
 
-Create a Node.js web server which is capable of returning an “index.html” file containing a welcome message and menu. Add all available routes from below to the menu. Add register, login and logout (only when logged in). List 100 tweets ordered by their creation date. The newest ones should be on top. Visible to anonymous users.
+Create a Node.js web server which is capable of returning an `index.html` file containing a welcome message and menu. Add all available routes from below to the menu. Add register, login and logout (only when logged in). List 100 tweets ordered by their creation date. The newest ones should be on top. Visible to anonymous users.
 
 ### Problem 2. Route /tweet (10 Points)
 
@@ -19,7 +19,7 @@ This route should allow all authorized users to add a tweet to the feed. Each tw
 
 ### Problem 3. Parse tags (20 Points)
 
-Parse the message. All words starting with # should be considered tags. For example the message “Hello, Twitter! This is my #first #message in your system!” contains two tags – first and message. Each tag is unique and case-insensitive. Use space, ‘.’, ’,’, ‘!’ and ‘?’ as separators. 
+Parse the message. All words starting with # should be considered tags. For example the message "Hello, Twitter! This is my #first #message in your system!" contains two tags – first and message. Each tag is unique and case-insensitive. Use space, ‘.’, ’,’, ‘!’ and ‘?’ as separators. 
 
 ### Problem 4. Route /tag/{tagName} (10 Points)
 
@@ -35,7 +35,7 @@ If the user is an administrator, he/she should be able to edit or delete tweets.
 
 ### Problem 7. Add handles (20 Points)
 
-Besides tags, Twitter allows user handles. They start with @ and allow one user to mention another by his/her username. Every time a tweet message contains a handle, the message must appear in the profile of the specified user. For example a tweet by user BaiIvan with message “Sup, @Pesho and @Gosho! Have you seen the latest #BlizzCon?” should be shown in three profiles – BaiIvan, Pesho and Gosho. Additionally, the message should appear in the BlizzCon tag.
+Besides tags, Twitter allows user handles. They start with @ and allow one user to mention another by his/her username. Every time a tweet message contains a handle, the message must appear in the profile of the specified user. For example a tweet by user BaiIvan with message "Sup, @Pesho and @Gosho! Have you seen the latest #BlizzCon?" should be shown in three profiles – BaiIvan, Pesho and Gosho. Additionally, the message should appear in the BlizzCon tag.
 
 ### Problem 8. Add likes and views (10 Points)
 
@@ -48,3 +48,21 @@ Add views counter on every tweet. It should be incremented every time a message 
 - Follow the standard - https://github.com/feross/standard
 - You may use whatever frameworks you like
 
+#### OTHER
+##### How to create a new repository on the command line
+
+```
+echo "# expressjs-exam-lets-build-twitter" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/plamen911/expressjs-exam-lets-build-twitter.git
+git push -u origin master
+```
+
+#### How to push an existing repository from the command line
+
+```
+git remote add origin https://github.com/plamen911/expressjs-exam-lets-build-twitter.git
+git push -u origin master
+```
